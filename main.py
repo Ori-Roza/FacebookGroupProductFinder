@@ -1,4 +1,14 @@
+import argparse
 from facebook_group_products_handler import FacebookGroupProductsHandler
+
+
+def args():
+    parser = argparse.ArgumentParser(description='Description of your program')
+    parser.add_argument('-fg', '--facebook_group', help='A Facebook group you want to search in', required=True,
+                        type=str)
+    parser.add_argument('-r', '--range', help='A range of a product price-> e.x "3000,5000"', required=False, default=None, type=str)
+    parser.add_argument('-l', '--is_live', help='Show on console or dump to file', required=False, default=True, type=bool)
+    return parser.parse_args()
 
 
 def stream_products(facebook_group, price_range=None, is_live=True):
@@ -9,6 +19,8 @@ def stream_products(facebook_group, price_range=None, is_live=True):
 
 
 if __name__ == '__main__':
-    FACEBOOK_GROUP = "https://www.facebook.com/groups/295395253832427/"
-    PRICE_RANGE = [3000, 5000]
-    stream_products(FACEBOOK_GROUP, PRICE_RANGE, is_live=False)
+    arguments = args()
+    facebook_group = arguments.facebook_group
+    is_live = arguments.is_live
+    price_range = [int(edge) for edge in arguments.range.split(",")]
+    stream_products(facebook_group, price_range, is_live=is_live)

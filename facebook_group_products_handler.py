@@ -103,9 +103,4 @@ class FacebookGroupProductsHandler(object):
                     self.handle_article(is_live, article_url, price, wrap.text)
 
 
-if __name__ == '__main__':
-    s = FacebookGroupProductsHandler("https://www.facebook.com/groups/295395253832427/")
-    s.search_products(is_live=True, price_range=[3000, 5000])
-
-
 
