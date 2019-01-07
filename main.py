@@ -7,7 +7,7 @@ def args():
     parser.add_argument('-fg', '--facebook_group', help='A Facebook group you want to search in', required=True,
                         type=str)
     parser.add_argument('-r', '--range', help='A range of a product price-> e.x "3000,5000"', required=False, default=None, type=str)
-    parser.add_argument('-l', '--is_live', help='Show on console or dump to file', required=False, default=True, type=bool)
+    parser.add_argument('-l', '--is_live', help='Show on console or dump to file', required=False, default=1, type=int)
     return parser.parse_args()
 
 
@@ -21,6 +21,6 @@ def stream_products(facebook_group, price_range=None, is_live=True):
 if __name__ == '__main__':
     arguments = args()
     facebook_group = arguments.facebook_group
-    is_live = arguments.is_live
+    is_live = bool(arguments.is_live)
     price_range = [int(edge) for edge in arguments.range.split(",")]
     stream_products(facebook_group, price_range, is_live=is_live)
