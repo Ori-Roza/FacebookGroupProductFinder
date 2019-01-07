@@ -89,7 +89,7 @@ class FacebookGroupProductsHandler(object):
             return url_span.get_attribute("href")
         return None
 
-    def handle_article(self, is_live, article_url, price, description):
+    def handle_article(self, is_live, article_url, price, description, output_file=""):
         """
         Whether print it or write it to a file
         """
@@ -104,11 +104,12 @@ class FacebookGroupProductsHandler(object):
         if is_live:
             print article
         else:
-            with codecs.open("products.txt", "a+", encoding='utf-8') as f:
+            output_path = output_file if output_file else "products.txt"
+            with codecs.open(output_path, "a+", encoding='utf-8') as f:
                 f.write(json.dumps(article))
                 f.write("\n")
 
-    def search_products(self, price_range=None, is_live=True):
+    def search_products(self, price_range=None, is_live=True, output_file=""):
         price_range = validate_range(price_range)
         for wrap in self._products_wrappers:
             product = self.get_product(wrap)
@@ -123,4 +124,4 @@ class FacebookGroupProductsHandler(object):
                     should_write_product = True
 
                 if should_write_product and article_url not in self._articles_urls:
-                    self.handle_article(is_live, article_url, price, wrap.text)
+                    self.handle_article(is_live, article_url, price, wrap.text, output_file=output_file)
