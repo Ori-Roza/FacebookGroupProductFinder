@@ -1,2 +1,9 @@
 *.pyc
-*.txt
+*.log
+*.pyo
+
+# Pickle
+*.pkl
+*.p
+.txt
+.idea/
