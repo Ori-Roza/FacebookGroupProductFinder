@@ -1,24 +1,27 @@
 import codecs
 import json
 import re
-
 from consts import *
 from time import sleep
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 
 
-def validate_range(r):
-    if not r:
+def validate_range(given_range):
+    if not given_range:
         return None
-    if not isinstance(r, list) and not isinstance(r, tuple):
+    if not isinstance(given_range, list) and not isinstance(given_range, tuple):
         return None
-    if len(r) != 2:
+    if len(given_range) != 2:  # Range between 2 numbers only!
         return None
-    return [min(r), max(r)]
+    return [min(given_range), max(given_range)]
 
 
 class FacebookGroupProductsHandler(object):
+    """
+    Retrieves all products that their price is between a given range from a public Facebook group.
+    Using selenium to search among the elements
+    """
     _rendering_wait_time = 10
     _scrolling_pause_time = 0.1
 
@@ -52,10 +55,13 @@ class FacebookGroupProductsHandler(object):
             return None
 
     @staticmethod
-    def get_valid_price_in_text(text, price_range):
+    def search_valid_price_from_text(text, price_range):
+        """
+        If article does not contain a price, try to retrieve the price from the text.
+        """
         valid_numbers = []
         for num in re.findall(r'\d+', text):
-            if not num.startswith("0"):  # Probably phone numbers
+            if not num.startswith("0"):  # Probably a phone number
                 if price_range[0] <= int(num) <= price_range[1]:
                     valid_numbers.append(int(num))
         if valid_numbers:
@@ -67,10 +73,10 @@ class FacebookGroupProductsHandler(object):
         try:
             price_element = product.find_element_by_class_name(PRODUCT_PRICE_CLASS)
         except (NoSuchElementException, AttributeError):
-            if price_range:
-                return self.get_valid_price_in_text(wrapper.text, price_range)
+            if price_range:  # If does not have price range will return -1
+                return self.search_valid_price_from_text(wrapper.text, price_range)
         if price_element:
-            return int("".join(price_element.text[1:].split(",")))
+            return int("".join(price_element.text[1:].split(",")))  # First char is the currency sign
         return -1
 
     @staticmethod
@@ -84,6 +90,9 @@ class FacebookGroupProductsHandler(object):
         return None
 
     def handle_article(self, is_live, article_url, price, description):
+        """
+        Whether print it or write it to a file
+        """
         article = {
             "url": article_url,
             "price": price,
