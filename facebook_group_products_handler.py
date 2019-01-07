@@ -76,7 +76,10 @@ class FacebookGroupProductsHandler(object):
             if price_range:  # If does not have price range will return -1
                 return self.search_valid_price_from_text(wrapper.text, price_range)
         if price_element:
-            return int("".join(price_element.text[1:].split(",")))  # First char is the currency sign
+            try:
+                return int("".join(price_element.text[1:].split(",")))  # First char is the currency sign
+            except ValueError:
+                pass # will return -1 anyway
         return -1
 
     @staticmethod
