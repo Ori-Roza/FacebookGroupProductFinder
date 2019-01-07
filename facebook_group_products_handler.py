@@ -1,5 +1,7 @@
 import codecs
 import json
+import re
+
 from consts import *
 from time import sleep
 from selenium import webdriver
@@ -50,11 +52,23 @@ class FacebookGroupProductsHandler(object):
             return None
 
     @staticmethod
-    def get_product_price(product):
+    def get_valid_price_in_text(text, price_range):
+        valid_numbers = []
+        for num in re.findall(r'\d+', text):
+            if not num.startswith("0"):  # Probably phone numbers
+                if price_range[0] <= int(num) <= price_range[1]:
+                    valid_numbers.append(int(num))
+        if valid_numbers:
+            return min(valid_numbers)
+        return -1
+
+    def get_product_price(self, product, wrapper, price_range):
+        price_element = None
         try:
             price_element = product.find_element_by_class_name(PRODUCT_PRICE_CLASS)
         except (NoSuchElementException, AttributeError):
-            return -1  # Not every article has price
+            if price_range:
+                return self.get_valid_price_in_text(wrapper.text, price_range)
         if price_element:
             return int("".join(price_element.text[1:].split(",")))
         return -1
@@ -86,13 +100,13 @@ class FacebookGroupProductsHandler(object):
                 f.write("\n")
 
     def search_products(self, price_range=None, is_live=True):
+        price_range = validate_range(price_range)
         for wrap in self._products_wrappers:
             product = self.get_product(wrap)
-            price = self.get_product_price(product)
+            price = self.get_product_price(product, wrap, price_range)
             article_url = self.get_article_url(wrap)
             if price > 0:
                 should_write_product = False
-                price_range = validate_range(price_range)
                 if price_range:
                     if price_range[0] <= price <= price_range[1]:
                         should_write_product = True
@@ -101,6 +115,3 @@ class FacebookGroupProductsHandler(object):
 
                 if should_write_product and article_url not in self._articles_urls:
                     self.handle_article(is_live, article_url, price, wrap.text)
-
-
-
