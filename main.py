@@ -35,4 +35,4 @@ if __name__ == '__main__':
     is_live = bool(arguments.is_live)
     output_path = arguments.output_file
     price_range = [int(edge) for edge in arguments.range.split(",")]
-    stream_products(facebook_group, price_range, is_live=is_live, output_path=output_file)
+    stream_products(facebook_group, price_range, is_live=is_live, output_file=output_path)
